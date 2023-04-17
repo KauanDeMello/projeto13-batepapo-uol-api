@@ -4,6 +4,8 @@ import { MongoClient } from "mongodb"
 import dotenv from "dotenv"
 import joi from "joi"
 import dayjs from "dayjs"
+import utf8 from 'utf8'
+
 
 
 // Server 
@@ -23,7 +25,9 @@ mongoClient.connect()
 
 
 // Joi Schema
-const nameSchema = joi.string().trim().required()
+const participantsSchema = joi.object({
+    name: joi.string().required().min(3)
+  })
 
 
 // POST /participants
@@ -31,7 +35,7 @@ app.post('/participants', async (req, res) => {
     const { name } = req.body;
   
     
-    const { error } = nameSchema.validate(name)
+    const { error } = participantsSchema.validate({name})
     if (error) {
       return res.status(422).json({ message: "O campo 'name' é obrigatório e deve ser uma string não vazia." })
     }
@@ -75,6 +79,46 @@ app.get('/participants', (req, res) => {
         res.status(500).json({ message: 'Erro ao buscar participantes' });
       });
   });
+
+
+// Joi schema message
+const messageSchema = joi.object({
+    from: joi.string().required(),
+    to: joi.string().required(),
+    text: joi.string().required(),
+    type: joi.string().valid("message", "private_message").required()
+  });
+
+// Post messages
+
+app.post("/messages", async(req, res) => {
+    const {to, text, type} = req.body
+    const {user} = req.headers
+
+    const userExists = await db.collection("participante").findOne({ name: user });
+    if (!userExists) {
+      return res.status(422).send("User não encontrado.");
+    }
+  
+    const { error } = messageSchema.validate({ from: user, to, text, type });
+    if (error) {
+      return res.status(422).send(" Mensagem inválida, tente novamente!");
+    }
+
+    const message = {
+        from: user,
+        to,
+        text,
+        type,
+        time: dayjs().format("HH:mm:ss")
+    }
+    await db.collection('mensagem').insertOne(message)
+
+    res.sendStatus(201)
+
+})
+
+
 
 // Port Server
 const PORT = 5000
