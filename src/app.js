@@ -48,6 +48,7 @@ app.post('/participants', async (req, res) => {
   
     
     const newParticipant = {
+    _id: ObjectId(),
       name,
       lastStatus: Date.now()
     }
@@ -55,6 +56,7 @@ app.post('/participants', async (req, res) => {
   
    
     const newMessage = {
+     _id: ObjectId(),
       from: name,
       to: 'Todos',
       text: 'entra na sala...',
@@ -166,7 +168,21 @@ app.get("/messages", async (req, res) => {
     res.sendStatus(200);
   });
 
+  setInterval(async () => {
+    const cutoffTimestamp = Date.now() - 10 * 1000 // 10 segundos atrás
+    const result = await db.collection('participante').deleteMany({ lastStatus: { $lt: cutoffTimestamp } })
   
+    if (result.deletedCount > 0) {
+      const messages = result.deletedIds.map((id) => ({
+        from: id,
+        to: 'Todos',
+        text: 'sai da sala...',
+        type: 'status',
+        time: dayjs().format('HH:mm:ss')
+      }))
+      await db.collection('mensagem').insertMany(messages)
+    }
+  }, 15000)
 
 // Port Server
 const PORT = 5000
