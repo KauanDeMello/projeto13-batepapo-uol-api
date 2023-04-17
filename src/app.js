@@ -63,6 +63,19 @@ app.post('/participants', async (req, res) => {
     return res.status(201).send()
   })
 
+// Get / participants
+
+app.get('/participants', (req, res) => {
+    db.collection('participante').find().toArray()
+      .then((participants) => {
+        res.status(200).json(participants);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).json({ message: 'Erro ao buscar participantes' });
+      });
+  });
+
 // Port Server
 const PORT = 5000
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`))
