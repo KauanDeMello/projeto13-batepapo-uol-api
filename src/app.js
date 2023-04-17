@@ -1,6 +1,7 @@
 import express from "express"
 import cors from "cors"
 import { MongoClient } from "mongodb"
+import dotenv from "dotenv"
 
 // Server 
 const app = express()
@@ -8,10 +9,12 @@ const app = express()
 // Setup
 app.use(express.json())
 app.use(cors())
+dotenv.config()
 
 // Database Setup
+
+const mongoClient = new MongoClient(process.env.DATABASE_URL)
 let db;
-const mongoClient = new MongoClient("mongodb://localhost:27017/BatePapoUol")
 mongoClient.connect()
     .then(() => db = mongoClient.db())
     .catch((err) => console.log(err.message))
