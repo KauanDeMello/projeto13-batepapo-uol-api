@@ -1,10 +1,10 @@
 import express from "express"
 import cors from "cors"
-import { MongoClient } from "mongodb"
+import { MongoClient, ObjectId } from "mongodb"
 import dotenv from "dotenv"
 import joi from "joi"
 import dayjs from "dayjs"
-import utf8 from 'utf8'
+
 
 
 
@@ -145,7 +145,29 @@ app.get("/messages", async (req, res) => {
     res.send(messages);
   });
 
+  app.post('/status', async (req, res) => {
+    const { user } = req.headers;
   
+    if (!user) {
+      return res.status(404).send('User não informado');
+    }
+  
+    const userExists = await db.collection('participante').findOne({ name: user });
+  
+    if (!userExists) {
+      return res.status(404).send('User não encontrado');
+    }
+  
+    await db.collection('participante').updateOne(
+      { name: user },
+      { $set: { lastStatus: Date.now() } }
+    );
+  
+    res.sendStatus(200);
+  });
+
+  
+
 // Port Server
 const PORT = 5000
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`))
