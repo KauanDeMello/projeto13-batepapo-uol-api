@@ -118,8 +118,34 @@ app.post("/messages", async(req, res) => {
 
 })
 
+app.get("/messages", async (req, res) => {
+    const { user } = req.headers;
+    const { limit } = req.query;
+  
+    let query = {
+      $or: [
+        { to: "Todos" },
+        { to: user },
+        { from: user },
+        { type: "public" },
+      ],
+    };
+  
+    if (isNaN(parseInt(limit)) || parseInt(limit) <= 0) {
+      return res.status(422).send("Limit inválido.");
+    }
+  
+    const messages = await db
+      .collection("mensagem")
+      .find(query)
+      .limit(parseInt(limit) || undefined)
+      .sort({ $natural: -1 })
+      .toArray();
+  
+    res.send(messages);
+  });
 
-
+  
 // Port Server
 const PORT = 5000
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`))
