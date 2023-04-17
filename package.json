@@ -1,0 +1,23 @@
+{
+  "name": "projeto13-batepapo-uol-api",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "A chat social media like old time (msn), just like previous project, but this time I will use my own API, and database with  MongoDB. Back end project with Node.js and Express.js",
+  "main": "./src/app.js",
+  "scripts": {
+    "start": "node ./src/app.js",
+    "dev": "nodemon ./src/app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongodb": "^5.2.0"
+  }
+}
