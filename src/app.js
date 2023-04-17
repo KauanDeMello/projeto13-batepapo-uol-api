@@ -94,6 +94,7 @@ const messageSchema = joi.object({
 // Post messages
 
 app.post("/messages", async(req, res) => {
+    
     const {to, text, type} = req.body
     const {user} = req.headers
 
@@ -102,7 +103,7 @@ app.post("/messages", async(req, res) => {
       return res.status(422).send("User não encontrado.");
     }
   
-    const { error } = messageSchema.validate({ from: user, to, text, type });
+    const { error } = messageSchema.validate({ from: user, to, text, type },  { abortEarly: false });
     if (error) {
       return res.status(422).send(" Mensagem inválida, tente novamente!");
     }
@@ -117,7 +118,7 @@ app.post("/messages", async(req, res) => {
     await db.collection('mensagem').insertOne(message)
 
     res.sendStatus(201)
-
+    
 })
 
 app.get("/messages", async (req, res) => {
